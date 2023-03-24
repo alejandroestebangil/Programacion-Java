@@ -1,80 +1,94 @@
 package Ej100;
 
-import javax.imageio.ImageIO;
 import java.applet.Applet;
 import java.awt.*;
-import java.io.File;
-import java.io.IOException;
-
+import java.awt.event.KeyEvent;
 
 public class Caminar extends Applet implements Runnable {
-    public static final int FILAS = 3;
-    public static final int COLUMNAS = 4;
-    Thread animacion;
-    Image imagen;
-    Image fotogramas[][];
-    Image actual;
-    Graphics noseve;
-    String elementos[] = {"Guerrillero/g", "Hampon/h", "Vaquero/v", "Ken/ken"};
-    Personaje persona;
-    int numPersonaje = 0;
+    public static final int ROWS = 3;
+    public static final int COLUMNS = 4;
+    private int delay = 200;
+    private Thread animacion;
+    private Image imagen;
+    private Graphics noseve;
+    public final static int SIZEX = 600;
+    public final static int SIZEY = 600;
+    Image img;
+    Image imagenes[][];
+    String elementos[] = {"Guerrillero/g", "Hampon/h", "Vaquero/v"};
+    Personaje personaje;//declaro un dibujo animado para mostrarlo, reservo memoria.
 
     public void init(){
-        this.setSize(400,400);
-        Frame title = (Frame) this.getParent().getParent();
-        title.setTitle("Caminando con Sprites"); //cambiamos el nombre de la ventana
-        title.setMenuBar(null); //elimina la barra de menu de applet
+        this.setSize(SIZEX, SIZEY);
 
-        imagen = this.createImage(400,400);
+        imagen = this.createImage(SIZEX, SIZEY);
         noseve = imagen.getGraphics();
-        fotogramas = new Image[FILAS][COLUMNAS];
-        for (int i = 0; i < FILAS; i++) {
-            for (int j = 0; j < COLUMNAS; j++) {
-                fotogramas[i][j] = getImage(getCodeBase(),"Ej100/Sprites/" + elementos[i] + (j + 1) + ".gif");
-            }
-        }
-        persona = new Personaje(fotogramas[numPersonaje]);
+
+        img = getImage(getCodeBase(), "Ejercicio01/Sprites/Guerrillero/g1.gif");
+        /*este método devuelve algo, una imagen
+        primero se le da el path (en ese caso usamos getCodeBase() para
+        obtener el path), lo mete en una dirección de memoria ram y con el
+        getImage accedemos a él.
+        */
+        imagenes = new Image[ROWS][COLUMNS];
+
+        //Cargamos las imágenes en el array bidimensional.
+        for(int i = 0; i < ROWS; i++)
+            for(int j = 0; j < COLUMNS; j++)
+                imagenes[i][j] = getImage(getCodeBase(), "Ejercicio01/Sprites/" + elementos[i] + (j+1) + ".gif");
+        //instancio el personaje.
+        personaje = new Personaje(imagenes[0]);
     }
     public void start(){
         animacion = new Thread(this);
         animacion.start();
     }
+
     public void paint(Graphics g){
         noseve.setColor(Color.BLACK);
-        noseve.fillRect(0,0,400,400);
+        noseve.fillRect(0, 0, SIZEX, SIZEY);
 
-        persona.paint(noseve, this);
-        g.drawImage(imagen, 0, 0, this);
+        personaje.paint(noseve, this);
 
+        g.drawImage(imagen, 0, 0, SIZEX, SIZEY, this);
     }
-    public void update(Graphics g){
+
+    public void update(Graphics g){ //override, lo sobreescribimos eliminando la linea de borrar
         paint(g);
+
     }
-    public void run() {
-        while (true) {
-            persona.update();
+
+    public void run(){
+        while(true){
+            personaje.update();
             repaint();
+
             try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {}
+                Thread.sleep(delay);
+            } catch (InterruptedException ex){
+                System.out.println("Error en el hilo");
+            }
         }
     }
-    public boolean keyDown(Event e, int key){
-        switch (key){
-            case 103:
-            case 71:
-                persona.setImagenes(fotogramas[0]);
+    public boolean keyDown(Event ev, int tecla){
+        final int KeyEvent_g = 103;
+        final int KeyEvent_h = 104;
+        final int KeyEvent_v = 118;
+        boolean isKeyDown = false;
+        switch (tecla){
+            case KeyEvent.VK_G: case KeyEvent_g:
+                personaje.setImagenes(imagenes[0]);
+                isKeyDown = true;
                 break;
-            case 104:
-            case 72:
-                persona.setImagenes(fotogramas[1]);
+            case KeyEvent.VK_H: case KeyEvent_h:
+                personaje.setImagenes(imagenes[1]);
+                isKeyDown = true;
                 break;
-            case 118:
-            case 86:
-                persona.setImagenes(fotogramas[2]);
+            case KeyEvent.VK_V: case KeyEvent_v:
+                personaje.setImagenes(imagenes[2]);
+                isKeyDown = true;
+                break;
         }
-        return true;
+        return isKeyDown;
     }
-
-
 }
