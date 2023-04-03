@@ -121,7 +121,7 @@ public class Robin extends Applet implements Runnable {
                         score++;
                     }
                 }
-            }
+            } //otra forma de hacer esto seria en el metodo update de la clase Flecha pasandole la lista
 
             repaint();
             try {

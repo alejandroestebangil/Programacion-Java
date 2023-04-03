@@ -1,0 +1,19 @@
+    15
+   click
+  [4][2]
+   x  y
+
+desplazamiento
+   [][]
+   x y
+
+  hasta
+   [][]
+   x y
+__________________
+
+-1 0 1
+
+   hueco
+  [4][4]
+   x  y
