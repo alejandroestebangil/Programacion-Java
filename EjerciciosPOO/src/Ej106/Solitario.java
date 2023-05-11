@@ -22,7 +22,9 @@ public class Solitario extends Applet implements Runnable{
     MazoPalo mazoPalos[];
     MazoJuego mazoJuegos[];
     Boolean activaIsMazoJuego = false;
+    Boolean encontrado = false;
     int mazoJuego;
+
 
     public void init(){
         createWindow(); //Creamos la ventana del applet
@@ -35,6 +37,8 @@ public class Solitario extends Applet implements Runnable{
         for (int i = 0; i < 7; i++)
             mazoJuegos[i] = new MazoJuego(100+(i*100));
 
+        imagen = this.createImage(SIZEX, SIZEY); //creamos la imagen
+        noseve = imagen.getGraphics(); //creamos el lienzo
     }
 
     private void setupBaraja() {
@@ -53,8 +57,6 @@ public class Solitario extends Applet implements Runnable{
         title.setTitle("Solitario"); //cambiamos el nombre de la ventana
         this.setSize(SIZEX, SIZEY); //tamaño de la ventana
         title.setMenuBar(null); //elimina la barra de menu de applet
-        imagen = this.createImage(SIZEX, SIZEY); //creamos la imagen
-        noseve = imagen.getGraphics(); //creamos el lienzo
         this.setFocusable(true); //para poder usar el teclado directamente
         this.requestFocus();
     }
@@ -63,12 +65,12 @@ public class Solitario extends Applet implements Runnable{
         noseve.setColor(Color.green);
         noseve.fillRect(0, 0, SIZEX, SIZEY);
         noseve.drawImage(imgReverso, 20, 20, Card.WIDTH, Card.HEIGHT, this);
-        for (int i = 0; i < NUMPALOS; i++) {
-            mazoPalos[i].mostrar(noseve, this);
-        }
-        for (int i = 0; i < 7; i++) {
-            mazoJuegos[i].mostrar(noseve, this);
-        }
+        if(!mazoSec.mazoB.isEmpty())
+            for(Card carta:mazoSec.mazoB)
+                carta.paint(noseve, this);
+        for(int i=0; i<7; i++)
+            if(!mazoJuegos[i].isEmpty())
+                mazoJuegos[i].mostrar(noseve, this);
 
         mazoSec.mostrar(noseve, this);
         //if(activa!=null) activa.dibujar(noseve, this);
@@ -88,22 +90,21 @@ public class Solitario extends Applet implements Runnable{
     public boolean mouseDown(Event evt, int x, int y){
         if (reverso.contains(x, y)){ //si pulsamos sobre el reverso, sacamos una carta
             mazoSec.anadir(baraja.sacar());
-            mazoSec.recolocar();
             repaint();
+            return true;
         }
         if (!mazoSec.mazoB.isEmpty() && mazoSec.extraer().contains(x, y)){ //si pulsamos sobre la carta del mazo secundario
             active = mazoSec.extraer();
-            repaint();
         }
         for(int i=0; i<7; i++){
             if(!mazoJuegos[i].mazo.isEmpty() && mazoJuegos[i].extraer().contains(x,y)){ //si pulsamos sobre la ultima carta de un mazo de juego
                 active = mazoJuegos[i].extraer();
                 activaIsMazoJuego = true;
                 mazoJuego = i;
-                repaint();
+                break;
             }
         }
-        return true;
+        return false;
     }
 
     public boolean mouseDrag(Event ev, int x, int y){
@@ -118,47 +119,43 @@ public class Solitario extends Applet implements Runnable{
     public boolean mouseUp(Event ev, int x, int y){
         if(active==null) {
             return false;
-        } else if(active!=null){
-            boolean encontrado = false;
-            for(int i=0; i<NUMPALOS; i++){
-                if(mazoPalos[i].intersects(active)){ //si la carta activa esta sobre el mazo de palos
-                    if(mazoPalos[i].anadir(mazoSec.extraer())){ //si se puede añadir
-                        removeCardFromMazo(); //al meterla en mazoPalo, la eliminamos del mazo secundario
-                        encontrado = true;
-                        break;
-                    }
+        }
+        for(int i=0; i<NUMPALOS; i++){
+            if(mazoPalos[i].intersects(active)){ //si la carta activa esta sobre el mazo de palos
+                if(mazoPalos[i].anadir(active)){ //si se puede añadir
+                    removeCardFromMazo(); //al meterla en mazoPalo, la eliminamos del mazo secundario
+                    break;
                 }
             }
-            for (int i = 0; i < 7; i++) {
-                if (mazoJuegos[i].mazo.isEmpty()){
-                    if (mazoJuegos[i].intersects(active)) {
-                        if (mazoJuegos[i].anadir(mazoSec.extraer())) {
-                            removeCardFromMazo();
-                            encontrado = true;
-                            break;
-                        } else {
-                            mazoJuegos[i].recolocar(active);
-                            break;
-                        }
-                    }
-                } else if(mazoJuegos[i].mazo.get(mazoJuegos[i].mazo.size()-1).intersects(active)){
-                    if(mazoJuegos[i].anadir(mazoSec.extraer())){
+        }
+        for (int i = 0; i < 7; i++) {
+            if (mazoJuegos[i].mazo.isEmpty()){
+                if (mazoJuegos[i].intersects(active)) {
+                    if (mazoJuegos[i].anadir(active)) {
                         removeCardFromMazo();
-                        encontrado = true;
                         break;
                     } else {
                         mazoJuegos[i].recolocar(active);
                         break;
                     }
                 }
+            } else if(mazoJuegos[i].mazo.get(mazoJuegos[i].mazo.size()-1).intersects(active)){
+                if(mazoJuegos[i].anadir(active)){
+                    removeCardFromMazo();
+                    break;
+                } else {
+                    mazoJuegos[i].recolocar(active);
+                    break;
+                }
             }
-            if(!encontrado && !mazoSec.mazoB.isEmpty()){ //si no se ha encontrado un mazo donde añadir la carta
-                mazoSec.recolocar();
-            }
-            active = null;
-            activaIsMazoJuego = false;
-            repaint();
         }
+        if(!encontrado && !mazoSec.mazoB.isEmpty()){ //si no se ha encontrado un mazo donde añadir la carta
+            mazoSec.recolocar();
+        }
+        active = null;
+        activaIsMazoJuego = false;
+        repaint();
+        encontrado = false;
         return true;
     }
 
@@ -167,5 +164,6 @@ public class Solitario extends Applet implements Runnable{
             mazoJuegos[mazoJuego].eliminar(active);
         else
             mazoSec.eliminar();
+        encontrado = true;
     }
 }

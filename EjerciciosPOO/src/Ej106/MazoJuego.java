@@ -4,27 +4,26 @@ package Ej106;
 import java.applet.Applet;
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.List;
 
 public class MazoJuego extends Rectangle {
-    public List<Card> mazo;
+    public ArrayList<Card> mazo;
     public static final int POSY = 200;
 
-    public MazoJuego(int px){
-        super(px, POSY, Card.WIDTH, Card.HEIGHT);
+    public MazoJuego(int x){
+        super(x, POSY, Card.WIDTH, Card.HEIGHT);
         mazo = new ArrayList<Card>();
     }
 
     public boolean anadir(Card card){
         if(mazo.size()==0){ //si no hay cartas en el mazo
-            recolocar(card);
             mazo.add(card);
+            recolocar(card);
             return true;
         } else {
-            if(card.getColor()!=mazo.get(mazo.size()-1).getColor()) {
+            if(mazo.get(mazo.size()-1).getColor()!=card.getColor()) {
                 if (mazo.get(mazo.size()-1).getValue() == card.getValue() + 1) { //si es una carta menor a la que ya hay colocado
-                    recolocar(card);
                     mazo.add(card);
+                    recolocar(card);
                     return true;
                 }
             }
@@ -33,7 +32,7 @@ public class MazoJuego extends Rectangle {
     }
 
     public void mostrar(Graphics gg, Applet a){
-        gg.setColor(Color.BLACK);
+        gg.setColor(Color.WHITE);
         gg.drawRect(x, y, width, height);
         /*for (int i = 0; i < mazo.size(); i++) {
             mazo.get(i).paint(gg, a);

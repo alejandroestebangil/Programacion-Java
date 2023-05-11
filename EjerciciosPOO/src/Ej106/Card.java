@@ -11,18 +11,18 @@ public class Card extends Rectangle {
     private int color;
     private int suit;
     private Image image;
-    private Image back;
+    //private Image back;
 
     //constantes de cada color de carta
-    public static final int RED = 0;
-    public static final int BLACK = 1;
-    //constantess de cada palo
-    public static final int HEARTS = 0;
+    public static final int RED = 1;
+    public static final int BLACK = 2;
+    //constantes de cada palo
+    public static final int SPADES = 0;
     public static final int DIAMONDS = 1;
-    public static final int CLUBS = 2;
-    public static final int SPADES = 3;
+    public static final int HEARTS = 2;
+    public static final int CLUBS = 3;
     public static final int WIDTH = 100;
-    public static final int HEIGHT = 145;
+    public static final int HEIGHT = 150;
     public Card(Image image, int value, int color, int suit){
         super(-200, -200, WIDTH, HEIGHT);
         this.image = image;
@@ -35,9 +35,9 @@ public class Card extends Rectangle {
         g.drawImage(image, x, y, WIDTH, HEIGHT, applet);
     }
 
-    public void setPosition(int x, int y){
-        this.x = x;
-        this.y = y;
+    public void setPosition(int X, int Y){
+        this.x = X;
+        this.y = Y;
     }
 
     public int getValue() {
@@ -64,13 +64,27 @@ public class Card extends Rectangle {
         this.image = image;
     }
 
-    public Image getBack() {
-        return back;
-    }
-
-    public void setBack(Image back) { this.back = back; }
-
     public int getSuit() {
         return suit;
     }
+
+    //getters y setters de pos X e Y
+    public int getPosX() {
+        return x;
+    }
+
+    public void setPosX(int posX) {
+        this.x = posX;
+    }
+
+    public int getPosY() {
+        return y;
+    }
+
+    public void setPosY(int posY) {
+        this.y = posY;
+    }
+
+
+
 }

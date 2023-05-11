@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MazoPalo extends Rectangle{
-    List<Card> mazo;
+    public List<Card> mazo;
     public static final int POSY = 20;
-    int palo;
+    private int palo;
 
     public MazoPalo(int px){
         super(px, POSY, Card.WIDTH, Card.HEIGHT);
@@ -28,6 +28,8 @@ public class MazoPalo extends Rectangle{
             if(palo==card.getSuit()) //si es del mismo palo al que ya hay colocado
                 if(mazo.get(mazo.size()-1).getValue() == card.getValue()-1){ //si es una carta menor a la que ya hay colocado
                     mazo.add(card);
+                    recolocar();
+                    return true;
                 }
         }
         return false;
@@ -38,7 +40,7 @@ public class MazoPalo extends Rectangle{
     }
 
     public void mostrar(Graphics gg, Applet a){
-        gg.setColor(Color.BLACK);
+        gg.setColor(Color.WHITE);
         gg.drawRect(x, y, width, height);
         if (!mazo.isEmpty())
             for (Card carta : mazo)
