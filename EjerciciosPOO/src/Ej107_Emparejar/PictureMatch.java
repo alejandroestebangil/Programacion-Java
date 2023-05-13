@@ -143,9 +143,9 @@ public class PictureMatch extends Applet implements Runnable{
     }
 
     public boolean mouseUp(Event ev, int x, int y){
-        if(activa1 == null || activa2 == null)
+        if(activa1 == null || activa2 == null) //si no hay dos casillas activas
             return false;
-        if(activa1.getImagen() != activa2.getImagen()){
+        if(activa1.getImagen() != activa2.getImagen()){ //si hay dos activas y no son iguales, se ocultan
             activa1.setVisible(Boolean.FALSE);
             activa2.setVisible(Boolean.FALSE);
             contador = 0;

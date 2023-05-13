@@ -3,36 +3,29 @@ package EjExamen2Ev;
 import java.awt.*;
 
 public class rectanguloMovil extends Rectangle{
-    int x, y;
-    int velX, velY;
     Color color;
-    public rectanguloMovil(Color color){
-        super((int) (Math.random() * 250)+10, (int) (Math.random() * 150)+10,35,35);
+    static final int ANCHURA = 50;
+    static final int ALTURA = 50;
+    static int[] posX = {50, 150, 250, 350, 450};
+    int velX;
+    int velY;
+
+    public rectanguloMovil(int x, Color color){
+        super(posX[x], 200, ANCHURA, ALTURA);
         this.color = color;
-        velX = (int)(Math.random() * 5);
-        velY = (int)(Math.random() * 5);
-    }
-    public void paint(Graphics g){
-        g.setColor(color);
-        g.fillRect(x, y, this.width, this.height);
+        velX = (int)(Math.random()*7)-3;
+        velY = (int)(Math.random()*7)-3;
     }
     public void update(){
         x += velX;
         y += velY;
-        if (x < 0 || x > 265) {
-            velX = -velX;
-        }
-        if (y < 0 || y > 200) {
+        if(y >= (450 - this.height)|| y <= 0)
             velY = -velY;
-        }
+        if(x >= (600 - this.height)|| x <= 0)
+            velX = -velX;
     }
-
-    public void setX(int x) {this.x = x;}
-    public void setY(int y) {this.y = y;}
-    public Color getColor() {return color;}
-    public void setLinea(Linea linea){
-        this.x = linea.getPosX();
-        this.y = linea.getPosY();
+    public void paint(Graphics gg){
+        gg.setColor(color);
+        gg.fillRect(x, y, width, height);
     }
-
 }

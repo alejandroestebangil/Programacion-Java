@@ -5,132 +5,121 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class Juego extends Applet implements Runnable {
+    int delay = 20;
     Thread animacion;
     Image imagen;
     Graphics noseve;
+    Color [] colores = {Color.RED, Color.ORANGE, Color.GREEN, Color.YELLOW, Color.MAGENTA};
+    List<rectanguloInmovil> cuadradosAbajo = new ArrayList<rectanguloInmovil>();
+    List<rectanguloMovil> cuadradosArriba = new ArrayList<rectanguloMovil>();
+    List<Linea> lineas = new ArrayList<Linea>();
+    Linea actual;
 
-    public static final int NUM_RECT = 5;
+    public void init(){
+        createWindow();
 
-    Color colores[] = {Color.RED, Color.YELLOW, Color.BLUE, Color.MAGENTA, Color.GREEN};
-    public static int TIEMPO = 20;
+        for(int i = 0; i < colores.length; i++)
+            cuadradosAbajo.add(new rectanguloInmovil(i, colores[i]));
+        for(int i = 0; i < colores.length; i++)
+            cuadradosArriba.add(new rectanguloMovil(i, colores[i]));
+        this.setSize(600, 600);
 
-    Linea linea;
-    List<rectanguloInmovil> listaRI;
-    List<rectanguloMovil> listaRM;
-    List<Linea> listaL;
-
-    public void init() {
-        Frame title = (Frame) this.getParent().getParent();
-        title.setTitle("Examen 2Ev"); //cambiamos el nombre de la ventana
-        this.setSize(300, 300); //tamaño de la ventana
-        title.setMenuBar(null); //elimina la barra de menu de applet
-
-        listaRI = new ArrayList<rectanguloInmovil>();
-        listaRM = new ArrayList<rectanguloMovil>();
-        listaL = new ArrayList<Linea>();
-
-        for (int i = 0; i < NUM_RECT; i++) {
-            listaRI.add(new rectanguloInmovil(20 + (i * 55), 245, colores[i]));
-        }
-
-        for (int i = 0; i < NUM_RECT; i++) {
-            listaRM.add(new rectanguloMovil(colores[i]));
-        }
-
-        imagen = this.createImage(300, 300);
+        imagen = this.createImage(600, 600);
         noseve = imagen.getGraphics();
-
+    }
+    private void createWindow() {
+        Frame title = (Frame) this.getParent().getParent(); //obtenemos la ventana para
+        title.setTitle("Examen 2Ev"); //cambiamos el nombre de la ventana
+        this.setSize(600, 600); //tamaño de la ventana
+        title.setMenuBar(null); //elimina la barra de menu de applet
         this.setFocusable(true); //para poder usar el teclado directamente
         this.requestFocus();
-
     }
-
-    public void start() {
-        animacion = new Thread(this);
-        animacion.start(); // llama al metodo run
+    public void start(){
+        animacion = new Thread(this);//lo instanciamos y le pasamos this (el frame)
+        animacion.start();//es el que llama a ejecutar el método run
     }
-
-    public void paint(Graphics g) {
+    public void paint(Graphics g){
         noseve.setColor(Color.BLACK);
-        noseve.fillRect(0, 0, 400, 400);
+        noseve.fillRect(0, 0, 600, 600);
 
-        for (int i = 0; i < listaRI.size(); i++) {
-            listaRI.get(i).paint(noseve);
-        }
+        for(rectanguloInmovil ci : cuadradosAbajo)
+            ci.paint(noseve);
 
-        for (int i = 0; i < listaRM.size(); i++) {
-            listaRM.get(i).paint(noseve);
-        }
+        for(rectanguloMovil cm : cuadradosArriba)
+            cm.paint(noseve);
 
-        for (int i = 0; i < listaL.size(); i++) {
-            listaL.get(i).paint(noseve);
-        }
+        if(actual != null)
+            actual.paint(noseve);
+
+        if(!lineas.isEmpty())
+            for(Linea li : lineas)
+                li.paint(noseve);
+
 
         g.drawImage(imagen, 0, 0, this);
     }
 
-    public void update(Graphics g) {
+    public void update(Graphics g){ //override, lo sobreescribimos eliminando la linea de borrar
         paint(g);
     }
 
-    public void run() {
-        do {
-            for (int i = 0; i < listaRM.size(); i++) {
-                listaRM.get(i).update();
-            }
+    public void run(){
+        while(true){
+            for(rectanguloMovil cm : cuadradosArriba){
+                cm.update();
+                if(!lineas.isEmpty())
+                    for(Linea li : lineas){
+                        li.update();
+                    }
 
-            for (int i = 0; i < listaL.size(); i++) {
-                listaL.get(i).update();
             }
 
             repaint();
             try {
-                Thread.sleep(TIEMPO);
-            } catch (InterruptedException e) {
-            }
-        } while (true);
-    }
-
-    public boolean mouseDown(Event e, int x, int y) {
-        for (int i = 0; i < listaRI.size(); i++) {
-            if (listaRI.get(i).contains(x, y)) {
-                linea = new Linea(x, y, listaRI.get(i).getColor());
-                listaL.add(linea);
+                Thread.sleep(delay);
+            } catch (InterruptedException ex){
             }
         }
-        return true;
     }
-
-    public boolean mouseDrag(Event e, int x, int y) {
-        for (int i = 0; i < listaL.size(); i++) {
-            if (listaL.get(i).getColor() == linea.getColor()) {
-                listaL.get(i).setPosX(x);
-                listaL.get(i).setPosY(y);
+    public boolean mouseDown(Event ev, int x, int y){
+        for(rectanguloInmovil ci : cuadradosAbajo){
+            if(ci.contains(x, y)){
+                actual = new Linea(x, y, ci.color);
+                repaint();
+                return true;
             }
         }
-        return true;
-    }
 
-    public boolean mouseUp(Event e, int x, int y) {
-        for (int i = 0; i < listaL.size(); i++) {
-            if (listaL.get(i).getColor() == linea.getColor()) {
-                for (int j = 0; j < listaRM.size(); j++) {
-                    if (listaRM.get(j).getColor() == linea.getColor()) {
-                        listaRM.get(j).setLinea(listaL.get(i));
-                    }
+
+        return false;
+    }
+    public boolean mouseDrag(Event ev, int x, int y){//cuando haces click y sin soltar, mueves
+        if(actual != null){
+            actual.setPosFinX(x);
+            actual.setPosFinY(y);
+            for(Linea li: lineas)
+                if(li.getColor()==actual.getColor()){
+                    actual = null;
+                    break;
                 }
-            }
+
+            repaint();
         }
+
         return true;
     }
-
-
-
-
-
-
+    public boolean mouseUp(Event ev, int x, int y){
+        for(rectanguloMovil cm : cuadradosArriba){
+            if(actual != null && cm.contains(x, y) && cm.color == actual.getColor()){
+                lineas.add(new Linea(actual.getPosIniX(), actual.getPosIniY(), cm));
+                actual = null;
+                repaint();
+                break;
+            }
+        }
+        actual = null;
+        return true;
+    }
 }
-
-
