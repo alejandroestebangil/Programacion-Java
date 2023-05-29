@@ -81,11 +81,13 @@ public class Tablero extends Applet implements Runnable {
         noseve.fillRect(0, 0, SIZEX, SIZEY);
         noseve.setColor(Color.BLACK);
 
+        //pintamos los lugares
         for(int i = 0; i < ROWS; i++){
             for(int j = 0; j < COLUMNS; j++)
                 lugares[i][j].paint(noseve, this);
         }
 
+        //pintamos el tiempo y la victoria si ganamos
         paintTime();
         if(ganar & animacion.isAlive())
             paintWin();
