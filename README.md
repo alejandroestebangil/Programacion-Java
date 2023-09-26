@@ -1,4 +1,4 @@
-# ProgramacionJava-1
+# Programacion-Java
 
 Ejercicios de programación en JAVA
 
